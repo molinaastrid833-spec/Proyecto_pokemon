@@ -16,6 +16,11 @@ python -m venv .venv
 ```
 .\.venv\Scripts\Activate.ps1
 ```
+### Al ser un ordenador del instituto para activarlo uso:
+```
+(Set-ExecutionPolicy -Scope Process -ExecutionPolicy RemoteSigned) ; (& .\.venv\Scripts\Activate.ps1)
+```
+
 ## Instalar las dependencias:
 ```
 pip install -r requirements.txt
