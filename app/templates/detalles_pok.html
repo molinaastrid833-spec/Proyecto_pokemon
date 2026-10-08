@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Detalle del Pokémon</title>
+</head>
+<style>
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: #2b2b2b;
+            color: #e0e0e0;
+            margin: 0;
+            padding: 20px;
+            max-width: 900px; 
+            margin: 0 auto;
+        }
+
+        h1, h2 {
+            color: #a4fc7e;
+            text-shadow: 2px 2px 0px #7960B4;
+            text-transform: capitalize;
+            text-align: center;
+        }
+
+        .cabecera-pokemon {
+            background: #1a1a1a;
+            border: 3px dashed #7960B4;
+            border-radius: 20px 5px 20px 5px;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 40px;
+            box-shadow: 0 8px 15px rgba(0,0,0,0.5);
+        }
+
+        .cabecera-pokemon img {
+            width: 200px;
+            background: rgba(121, 96, 180, 0.2);
+            border-radius: 50%;
+            border: 3px dotted #a4fc7e;
+            padding: 10px;
+            margin-bottom: 20px;
+            image-rendering: pixelated;
+        }
+
+        .datos-basicos {
+            font-size: 1.2rem;
+            text-align: center;
+            line-height: 1.8;
+        }
+
+        .datos-basicos span.valor {
+            color: #a4fc7e;
+            font-weight: bold;
+        }
+
+        .tipos span {
+            background-color: #7960B4;
+            color: #fff;
+            padding: 5px 15px;
+            border-radius: 10px;
+            margin: 0 5px;
+            text-transform: capitalize;
+            border: 1px solid #a4fc7e;
+            display: inline-block;
+            margin-top: 10px;
+        }
+
+        .estadisticas {
+            background: #1a1a1a;
+            padding: 20px;
+            border-radius: 15px;
+            border: 1px solid #333;
+            margin-bottom: 40px;
+        }
+
+        .estadistica {
+            margin-bottom: 15px;
+        }
+
+        .estadistica p {
+            margin: 0 0 5px 0;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            color: #b0b0b0;
+        }
+
+        .barra {
+            width: 100%;
+            height: 22px;
+            background-color: #2b2b2b;
+            border-radius: 15px;
+            border: 2px solid #7960B4;
+            overflow: hidden;
+        }
+
+        .barra-rellena {
+            height: 100%;
+            background-color: #a4fc7e;
+            border-radius: 10px 0 0 10px;
+            transition: width 1s ease-in-out;
+        }
+
+        .ataques-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 40px;
+        }
+
+        .ataque {
+            background: #1a1a1a;
+            border: 1px solid #7960B4;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .ataque h3 {
+            color: #a4fc7e;
+            margin: 0 0 10px 0;
+            text-transform: capitalize;
+            font-size: 1.1rem;
+        }
+
+        .ataque p {
+            margin: 5px 0;
+            font-size: 0.9rem;
+            color: #ccc;
+        }
+
+        .btn-volver {
+            display: block;
+            width: 250px;
+            text-align: center;
+            background-color: #7960B4;
+            color: #a4fc7e;
+            border: 3px solid #a4fc7e;
+            padding: 15px;
+            margin: 20px auto 60px auto;
+            border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+            text-decoration: none;
+            font-weight: bold;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+        }
+
+        .btn-volver:hover {
+            background-color: #a4fc7e;
+            color: #2b2b2b;
+            border-color: #7960B4;
+            border-radius: 70% 30% 30% 70% / 70% 70% 30% 30%;
+        }
+    </style>
+
+<body>
+
+    <div class="cabecera-pokemon">
+    <h1>{{ pokemon.name }}</h1>
+
+    <img src="{{ pokemon.sprites.front_default }}" alt="{{ pokemon.name }}">
+    <div class="datos-basicos">
+    <p>Altura: {{ pokemon.height }}</p>
+    <p>Peso: {{ pokemon.weight }}</p>
+    <p>Categoría de peso: {{ categoria_peso }}</p>
+    <p>Tipo:
+        {% for tipo in pokemon.types %}
+        <span>{{ tipo }}</span>
+        {% endfor %}
+    </p>
+    </div>
+</div>
+
+    <h2>Estadísticas</h2>
+
+    <div class="estadisticas">
+        {% for stat in pokemon.stats %}
+        <div class="estadistica">
+            <p>{{ stat.name }}: {{ stat.value }}</p>
+
+            <div class="barra">
+                <div class="barra-rellena" style="width: {{ (stat.value / 150 * 100) | round(0) }}%;">
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+        <h2>Ataques</h2>
+
+        <div class="ataques-grid">
+
+            {% for move in pokemon.moves %}
+
+            <div class="ataque">
+
+                <h3>{{ move.name }}</h3>
+
+                <p>Tipo: {{ move.type }}</p>
+                <p>Potencia: {{ move.power }}</p>
+                <p>Precisión: {{ move.accuracy }}</p>
+
+            </div>
+
+            {% endfor %}
+
+        </div>
+        <a href="/pokemons" class="btn-volver">Volver al Catalogo</a>
+    </div>
+
+</body>
+
+</html>
