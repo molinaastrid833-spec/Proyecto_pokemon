@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1>Preparacion antes del combate</h1>
+    <h2 class="subtitulo-entrenador">Entrenador activo: {{ trainer }}</h2>
+
+    <div class="panel-bienvenida panel-columna">
+        <form method="POST" action="{{ url_for('preparar_batalla', trainer=trainer) }}" class="formulario-batalla">
+            <p class="instrucciones-form">Introduce el nombre del Pokemon con el que quieres pelear.</p>
+
+            <label for="pokemon_batalla">Nombre del Pokemon:</label>
+            
+            <input type="text" id="pokemon_batalla" name="pokemon_batalla" placeholder="Ej: purugly" value="{{ request.form.get('pokemon_batalla', '') }}" required>
+            
+            {% if error %}
+                <p class="msj-error">{{ error }}</p>
+            {% endif %}
+            
+            <button type="submit" class="btn-principal">Confirmar Selección</button>
+        </form>
+
+        <a href="{{ url_for('list_pokemon', trainer=trainer) }}" class="btn-volver btn-espaciado">Volver al Catálogo</a>
+    </div>
+{% endblock %}

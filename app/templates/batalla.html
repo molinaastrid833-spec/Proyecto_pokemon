@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>Estadio de Batalla</h1>
+    <h2 class="subtitulo-entrenador">Entrenador en combate: {{ trainer }}</h2>
+
+    <div class="escenario-batalla">
+        <div class="tarjeta-combatiente combatiente-jugador">
+            <span class="etiqueta-bando">Tu pokemon</span>
+            
+            
+            <img src="{{ user_pok.sprites.front_default }}" alt="{{ user_pok.name }}" class="sprite-batalla">
+            
+            <h2>{{ user_pok.name }}</h2>
+
+            <div class="tipos">
+                {% for tipo in user_pok.types %}
+                    <span>{{ tipo }}</span>
+                {% endfor %}
+            </div>
+
+            <div class="datos-rapidos">
+                <p><strong>Peso:</strong> {{ user_pok.weight }} kg | <strong>Altura:</strong> {{ user_pok.height }} dm</p>
+            </div>
+
+
+            <div class="panel-ataques">
+                <h3>Ataques disponibles</h3>
+                <div class="grid-ataques-batalla">
+                    {% for ataque in ataques %}
+                        <div class="card-ataque">
+                            <span>
+                                {% if ataque.move is defined %}
+                                    {{ ataque.move.name }}
+                                {% elif ataque.name is defined %}
+                                    {{ ataque.name }}
+                                {% else %}
+                                    {{ ataque }}
+                                {% endif %}
+                            </span>
+                        </div>
+                    {% else %}
+                        <p>Sin movimientos disponibles</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="emblema-vs">VS</div>
+
+        <!-- POKEMON RIVAL -->
+        <div class="tarjeta-combatiente combatiente-rival">
+            <span class="etiqueta-bando bando-rival">Pokemon Rival</span>
+            
+            <img src="{{ rival_pok.sprites.front_default }}" alt="{{ rival_pok.name }}" class="sprite-batalla">
+            
+            <h2>{{ rival_pok.name }}</h2>
+
+            <div class="tipos">
+                {% for tipo in rival_pok.types %}
+                    <span>{{ tipo }}</span>
+                {% endfor %}
+            </div>
+
+            <div class="datos-rapidos">
+                <p><strong>Peso:</strong> {{ rival_pok.weight }} kg | <strong>Altura:</strong> {{ rival_pok.height }} dm</p>
+            </div>
+        </div>
+    </div>
+
+    <a href="{{ url_for('preparar_batalla', trainer=trainer) }}" class="btn-volver btn-espaciado">Elegir Otro Pokemon</a>
+{% endblock %}

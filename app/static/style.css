@@ -1,0 +1,723 @@
+/* 1. ESTRUCTURA GLOBAL Y BASE */
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    font-family: 'Courier New', Courier, monospace;
+    background-color: #2b2b2b;
+    color: #e0e0e0;
+}
+
+main {
+    flex-grow: 1;
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+h1 {
+    color: #a4fc7e;
+    text-shadow: 3px 3px 0px #7960B4;
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 2.5rem;
+}
+
+h2 {
+    color: #a4fc7e;
+    text-shadow: 2px 2px 0px #7960B4;
+    text-transform: capitalize;
+    text-align: center;
+}
+
+a {
+    text-decoration: none;
+}
+
+footer {
+    margin-top: auto;
+    text-align: center;
+    padding: 15px;
+    background-color: #1a1a1a;
+    color: #7960B4;
+    border-top: 2px solid #333;
+    width: 100%;
+}
+
+/* 2. COMPONENTES Y NAVEGACIÓN DE PORTADA (index.html) */
+p.intro {
+    font-size: 1.2rem;
+    color: #b0b0b0;
+    max-width: 600px;
+    margin: 0 auto 20px auto;
+    text-align: center;
+}
+
+.destacado {
+    background-color: rgba(121, 96, 180, 0.2);
+    border: 2px dotted #a4fc7e;
+    border-radius: 50%;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: fit-content;
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    z-index: 10;
+    transform: scale(0.85);
+    transform-origin: top left;
+}
+
+.destacado img {
+    width: 80px;
+    height: 80px;
+    image-rendering: pixelated;
+}
+
+.destacado span {
+    color: #a4fc7e;
+    font-size: 0.9rem;
+    font-weight: bold;
+    text-transform: capitalize;
+}
+
+.multimedia {
+    margin: 20px auto;
+    border-radius: 5px 30px 5px 30px;
+    border: 4px dashed #7960B4;
+    padding: 10px;
+    background-color: #1a1a1a;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+    max-width: 560px;
+    text-align: center;
+}
+
+.multimedia img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 20px 5px 20px 5px;
+    margin: 0 auto;
+}
+
+.panel-bienvenida {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 40px;
+    margin: 30px auto;
+    flex-wrap: wrap;
+}
+
+.panel-bienvenida.panel-columna {
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* 3. BOTONES IRREGULARES CON EFECTO ORGÁNICO */
+.btn-principal {
+    background-color: #7960B4;
+    color: #a4fc7e;
+    font-size: 1.15rem;
+    font-weight: bold;
+    padding: 15px 35px;
+    border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+    border: 3px solid #a4fc7e;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin: 20px auto;
+    display: inline-block;
+    text-transform: uppercase;
+    font-family: inherit;
+    text-align: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+}
+
+.btn-principal:hover {
+    border-radius: 70% 30% 30% 70% / 70% 70% 30% 30%;
+    background-color: #a4fc7e;
+    color: #2b2b2b;
+    border-color: #7960B4;
+    transform: scale(1.05);
+    box-shadow: 0 6px 15px rgba(164, 252, 126, 0.4);
+}
+
+.btn-volver {
+    display: block;
+    width: 250px;
+    text-align: center;
+    background-color: #7960B4;
+    color: #a4fc7e;
+    border: 3px solid #a4fc7e;
+    padding: 15px;
+    margin: 40px auto 20px auto;
+    border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+    font-weight: bold;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+    font-family: inherit;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+}
+
+.btn-volver:hover {
+    border-radius: 70% 30% 30% 70% / 70% 70% 30% 30%;
+    background-color: #a4fc7e;
+    color: #2b2b2b;
+    border-color: #7960B4;
+    transform: scale(1.03);
+}
+
+.btn-detalle {
+    background-color: #7960B4;
+    color: #a4fc7e;
+    border: 2px solid #a4fc7e;
+    padding: 10px 0;
+    width: 100%;
+    border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+    cursor: pointer;
+    font-weight: bold;
+    margin-top: auto;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    font-family: inherit;
+}
+
+.btn-detalle:hover {
+    border-radius: 70% 30% 30% 70% / 70% 70% 30% 30%;
+    background-color: #a4fc7e;
+    color: #2b2b2b;
+    border-color: #7960B4;
+}
+
+.btn-filtrar {
+    background-color: #a4fc7e;
+    color: #1a1a1a;
+    border: 3px solid #7960B4;
+    padding: 12px 28px;
+    border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+    font-weight: bold;
+    cursor: pointer;
+    font-family: inherit;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+}
+
+.btn-filtrar:hover {
+    border-radius: 70% 30% 30% 70% / 70% 70% 30% 30%;
+    background-color: #8ce067;
+    transform: scale(1.05);
+}
+
+.btn-limpiar {
+    background-color: #2b2b2b;
+    color: #ff4d4d;
+    border: 2px solid #ff4d4d;
+    padding: 12px 24px;
+    border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+    font-weight: bold;
+    font-family: inherit;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+    text-align: center;
+    display: inline-block;
+}
+
+.btn-limpiar:hover {
+    border-radius: 70% 30% 30% 70% / 70% 70% 30% 30%;
+    background-color: rgba(255, 77, 77, 0.2);
+    transform: scale(1.03);
+}
+
+.btn-preparar {
+    width: 280px;
+    text-align: center;
+    margin: 20px auto 30px auto;
+    display: block;
+}
+
+.btn-espaciado {
+    margin-top: 25px;
+}
+
+/* 4. FORMULARIOS (ENTRENADOR Y BATALLA) */
+.formulario-entrenador,
+.formulario-batalla {
+    background-color: #1a1a1a;
+    padding: 30px;
+    border-radius: 15px;
+    border: 3px dashed #7960B4;
+    margin: 20px auto;
+    max-width: 450px;
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+}
+
+.formulario-entrenador label,
+.formulario-batalla label {
+    color: #a4fc7e;
+    font-size: 1.15rem;
+    margin-bottom: 12px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.formulario-entrenador input,
+.formulario-batalla input {
+    padding: 12px;
+    border-radius: 8px;
+    border: 2px solid #7960B4;
+    background-color: #2b2b2b;
+    color: #a4fc7e;
+    font-size: 1.1rem;
+    margin-bottom: 18px;
+    width: 100%;
+    box-sizing: border-box;
+    text-align: center;
+    font-family: inherit;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+.formulario-entrenador input:focus,
+.formulario-batalla input:focus {
+    border-color: #a4fc7e;
+    box-shadow: 0 0 10px rgba(164, 252, 126, 0.4);
+    background-color: #333333;
+}
+
+.instrucciones-form {
+    color: #b0b0b0;
+    font-size: 1rem;
+    text-align: center;
+    margin-bottom: 20px;
+    line-height: 1.5;
+}
+
+.subtitulo-entrenador {
+    color: #b0b0b0;
+    text-shadow: none;
+    margin-top: -15px;
+    margin-bottom: 30px;
+    font-size: 1.15rem;
+    text-transform: none;
+}
+
+.msj-error {
+    color: #ff4d4d;
+    background-color: rgba(255, 77, 77, 0.1);
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ff4d4d;
+    margin-bottom: 15px;
+    font-size: 0.95rem;
+    text-align: center;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* 5. PANEL DE FILTRADO AVANZADO (poke.html) */
+.panel-filtro {
+    background-color: #1a1a1a;
+    border: 3px dashed #7960B4;
+    border-radius: 15px;
+    padding: 25px;
+    max-width: 900px;
+    margin: 0 auto 30px auto;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+    box-sizing: border-box;
+}
+
+.panel-filtro h3 {
+    color: #a4fc7e;
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 1.3rem;
+}
+
+.form-filtro-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+    align-items: flex-end;
+}
+
+.campo-filtro {
+    display: flex;
+    flex-direction: column;
+}
+
+.campo-filtro label {
+    color: #b0b0b0;
+    font-size: 0.95rem;
+    margin-bottom: 8px;
+    font-weight: bold;
+}
+
+.campo-filtro input,
+.campo-filtro select {
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 2px solid #7960B4;
+    background-color: #2b2b2b;
+    color: #a4fc7e;
+    font-family: inherit;
+    font-size: 1rem;
+    outline: none;
+    box-sizing: border-box;
+    width: 100%;
+}
+
+.campo-filtro select option {
+    background-color: #1a1a1a;
+    color: #a4fc7e;
+}
+
+.campo-filtro input:focus,
+.campo-filtro select:focus {
+    border-color: #a4fc7e;
+    box-shadow: 0 0 10px rgba(164, 252, 126, 0.4);
+}
+
+.acciones-filtro {
+    display: flex;
+    gap: 15px;
+    grid-column: 1 / -1;
+    justify-content: center;
+    margin-top: 10px;
+}
+
+.conteo-resultados {
+    text-align: center;
+    color: #b0b0b0;
+    margin-top: 15px;
+    margin-bottom: 0;
+    font-size: 0.95rem;
+}
+
+.conteo-resultados strong {
+    color: #a4fc7e;
+}
+
+.msj-sin-resultados {
+    grid-column: 1 / -1;
+    text-align: center;
+    color: #ff4d4d;
+    font-size: 1.2rem;
+    padding: 40px;
+    background-color: #1a1a1a;
+    border-radius: 10px;
+    border: 2px dashed #ff4d4d;
+}
+
+/* 6. LISTADO DE POKÉMON Y DETALLES */
+.grid-pokemons {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 30px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.grid-pokemons a {
+    width: 100%;
+}
+
+article {
+    background: #1a1a1a;
+    border-radius: 15px 5px 25px 5px;
+    border: 2px dashed #7960B4;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+    transition: transform 0.3s ease, border-color 0.3s;
+}
+
+article:hover {
+    transform: translateY(-8px);
+    border-color: #a4fc7e;
+}
+
+article img {
+    width: 120px;
+    height: 120px;
+    object-fit: contain;
+    background-color: rgba(121, 96, 180, 0.2);
+    border-radius: 50%;
+    border: 2px dotted #a4fc7e;
+    margin-bottom: 15px;
+}
+
+article h2 {
+    margin: 0 0 15px 0;
+}
+
+.tipos {
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.tipos span {
+    background-color: #7960B4;
+    color: #fff;
+    padding: 5px 12px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    margin: 0 4px;
+    text-transform: capitalize;
+    border: 1px solid #a4fc7e;
+    display: inline-block;
+}
+
+.cabecera-pokemon {
+    background: #1a1a1a;
+    border: 3px dashed #7960B4;
+    border-radius: 20px 5px 20px 5px;
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 0 auto 40px auto;
+    box-shadow: 0 8px 15px rgba(0,0,0,0.5);
+    max-width: 600px;
+}
+
+.cabecera-pokemon img {
+    width: 200px;
+    background: rgba(121, 96, 180, 0.2);
+    border-radius: 50%;
+    border: 3px dotted #a4fc7e;
+    padding: 10px;
+    margin-bottom: 20px;
+    image-rendering: pixelated;
+}
+
+.datos-basicos {
+    font-size: 1.2rem;
+    text-align: center;
+    line-height: 1.8;
+}
+
+.datos-basicos span.valor {
+    color: #a4fc7e;
+    font-weight: bold;
+}
+
+.estadisticas {
+    background: #1a1a1a;
+    padding: 20px;
+    border-radius: 15px;
+    border: 1px solid #333;
+    margin-bottom: 40px;
+}
+
+.estadistica {
+    margin-bottom: 15px;
+}
+
+.estadistica p {
+    margin: 0 0 5px 0;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+    color: #b0b0b0;
+}
+
+.barra {
+    width: 100%;
+    height: 22px;
+    background-color: #2b2b2b;
+    border-radius: 15px;
+    border: 2px solid #7960B4;
+    overflow: hidden;
+}
+
+.barra-rellena {
+    height: 100%;
+    background-color: #a4fc7e;
+    border-radius: 10px 0 0 10px;
+    transition: width 1s ease-in-out;
+}
+
+.ataques-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 15px;
+    margin-bottom: 40px;
+}
+
+.ataque {
+    background: #1a1a1a;
+    border: 1px solid #7960B4;
+    border-radius: 10px;
+    padding: 15px;
+    text-align: center;
+}
+
+.ataque h3 {
+    margin: 0 0 10px 0;
+    text-transform: capitalize;
+    font-size: 1.1rem;
+}
+
+.ataque p {
+    margin: 5px 0;
+    font-size: 0.9rem;
+    color: #ccc;
+}
+
+/* 7. ARENA DE BATALLA (batalla.html) */
+.texto-blanco {
+    color: #ffffff;
+}
+
+.destacado-texto {
+    color: #a4fc7e;
+}
+
+.titulo-pokemon-batalla {
+    font-size: 3.5rem;
+    text-transform: uppercase;
+    margin: 10px 0 20px 0;
+}
+
+.gif-batalla {
+    border: 4px dashed #7960B4;
+    border-radius: 20px;
+    max-width: 100%;
+    height: auto;
+}
+
+.escenario-batalla {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 30px;
+    margin: 30px auto;
+    max-width: 1100px;
+    flex-wrap: wrap;
+}
+
+.tarjeta-combatiente {
+    background-color: #1a1a1a;
+    border: 3px dashed #7960B4;
+    border-radius: 20px;
+    padding: 25px;
+    flex: 1;
+    min-width: 300px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+    position: relative;
+    box-sizing: border-box;
+}
+
+.combatiente-jugador {
+    border-color: #a4fc7e;
+}
+
+.combatiente-rival {
+    border-color: #ff4d4d;
+}
+
+.etiqueta-bando {
+    background-color: #a4fc7e;
+    color: #1a1a1a;
+    font-weight: bold;
+    padding: 6px 16px;
+    border-radius: 15px;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    margin-bottom: 15px;
+}
+
+.etiqueta-bando.bando-rival {
+    background-color: #ff4d4d;
+    color: #ffffff;
+}
+
+.sprite-batalla {
+    width: 140px;
+    height: 140px;
+    object-fit: contain;
+    background-color: rgba(121, 96, 180, 0.2);
+    border-radius: 50%;
+    border: 3px dotted #a4fc7e;
+    padding: 10px;
+    margin-bottom: 15px;
+    image-rendering: pixelated;
+}
+
+.combatiente-rival .sprite-batalla {
+    border-color: #ff4d4d;
+}
+
+.emblema-vs {
+    font-size: 3rem;
+    font-weight: 900;
+    color: #ff4d4d;
+    text-shadow: 3px 3px 0 #7960B4;
+    align-self: center;
+    margin: 20px 0;
+}
+
+.datos-rapidos {
+    color: #b0b0b0;
+    font-size: 0.95rem;
+    margin: 10px 0 15px 0;
+    text-align: center;
+}
+
+.panel-ataques {
+    width: 100%;
+    border-top: 2px dashed #7960B4;
+    padding-top: 15px;
+    margin-top: 10px;
+}
+
+.panel-ataques h3 {
+    color: #a4fc7e;
+    font-size: 1rem;
+    text-align: center;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+}
+
+.grid-ataques-batalla {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    width: 100%;
+}
+
+.card-ataque {
+    background-color: #2b2b2b;
+    border: 2px solid #7960B4;
+    color: #ffffff;
+    padding: 10px;
+    border-radius: 10px;
+    text-align: center;
+    font-size: 0.9rem;
+    font-weight: bold;
+    text-transform: capitalize;
+    transition: all 0.2s ease;
+}
+
+.card-ataque:hover {
+    border-color: #a4fc7e;
+    color: #a4fc7e;
+    transform: scale(1.03);
+}
