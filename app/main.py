@@ -1,11 +1,20 @@
+from functools import wraps
 import json
 from pathlib import Path
-from flask import Flask, redirect, render_template, request, url_for
+from flask import Flask, redirect, render_template, request, url_for, session
 from datetime import datetime
 import random
 
 '''es el obj que representa la app'''
 app = Flask(__name__, template_folder = 'templates')
+
+app.secret_key = "clave-secreta-pokemons-astrid"
+
+app.config.update(
+    SESSION_COOKIE_HTTPONLY=True,  
+    SESSION_COOKIE_SAMESITE="Lax"
+)
+
 '''La ruta se calcula desde este fichero, no desde donde se lance el programa'''
 RUTA_DATOS = Path(__file__).resolve().parent.parent / "data" / "pokemons-ugly.json"
 
@@ -14,8 +23,21 @@ with RUTA_DATOS.open("r", encoding="utf-8") as file:
     DATOS = json.load(file)
 
 
+def login(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        if "trainer" not in session:
+            return redirect(url_for("inicio"))
+        return func(*args, **kwargs)
+    return wrapper
+
+
 @app.route("/", methods=["GET", "POST"])
 def inicio():
+
+    if request.method == "GET" and "trainer" in session:
+        return redirect(url_for("list_pokemon"))
+
     proyecto = "Batallas Pokemon"
     nombre = "Astrid Molina"
     anho = datetime.now().year
@@ -30,27 +52,37 @@ def inicio():
         if len(trainer) < 3 or len(trainer) > 15:
             error = "El nombre de entrenador debe tener entre 3 y 15 caracteres."
         else:
-            return redirect(url_for('list_pokemon', trainer=trainer))
+
+            session["trainer"] = trainer
+            return redirect(url_for("list_pokemon"))
         
     return render_template("index.html", proyecto=proyecto, nombre=nombre, anho=anho, pokemon=pokemon, error= error, trainer= trainer)
 
 
 @app.route("/pokemons", methods=["GET"])
+@login # comprueba la sesion antes de entrar
 def list_pokemon():
-    
-    trainer = request.args.get("trainer")
-    
-    if not trainer:
-        return redirect(url_for('inicio'))
-    
+
     proyecto = "Batallas Pokemon"
     nombre = "Astrid Molina"
     anho = datetime.now().year
     
-    
-    nombre_pok = request.args.get("buscar_nombre", "").strip().lower()
-    tipo = request.args.get("buscar_tipo", "").strip().lower()
-    peso_min = request.args.get("peso_min", "").strip()
+    if request.args.get("limpiar") == "true":
+        session.pop("filtros", None)
+        return redirect(url_for("list_pokemon"))
+
+    if any(k in request.args for k in ["buscar_nombre", "buscar_tipo", "peso_min"]):
+        session["filtros"] = {
+            "nombre": request.args.get("buscar_nombre", "").strip().lower(),
+            "tipo": request.args.get("buscar_tipo", "").strip().lower(),
+            "peso_min": request.args.get("peso_min", "").strip()
+        }
+
+
+    filtros = session.get("filtros", {"nombre": "", "tipo": "", "peso_min": ""})
+    nombre_pok = filtros.get("nombre", "")
+    tipo = filtros.get("tipo", "")
+    peso_min = filtros.get("peso_min", "")
     
     lista_tipos = []
     for p in DATOS:
@@ -79,8 +111,7 @@ def list_pokemon():
         pokemons=flitro_pokemon, 
         proyecto=proyecto, 
         nombre=nombre, 
-        anho=anho, 
-        trainer=trainer,
+        anho=anho,
         tipos=lista_tipos,
         selected_nombre=nombre_pok,
         selected_tipo=tipo,
@@ -88,26 +119,25 @@ def list_pokemon():
         total_resultados=len(flitro_pokemon))
 
 @app.route("/batalla")
+@login
 def batalla():
-    trainer = request.args.get("trainer")
-    pokemon_nombre = request.args.get("pokemon")
 
-    if not trainer or not pokemon_nombre:
-        return redirect(url_for('inicio'))
+    # Permite atajo directo por parámetro en URL si viene de 'detalles_pok' o lo lee de la sesión
+    pokemon_nombre = request.args.get("pokemon") or session.get("pokemon_batalla")
 
+    if not pokemon_nombre:
+        return redirect(url_for("preparar_batalla"))
+
+    session["pokemon_batalla"] = pokemon_nombre
+    
     proyecto = "Batallas Pokemon"
     nombre = "Astrid Molina"
     anho = datetime.now().year
 
-    user_pok = None
-    for p in DATOS:
-        if p["name"].lower() == pokemon_nombre.lower():
-            user_pok = p
-            break
+    user_pok = next((p for p in DATOS if p["name"].lower() == pokemon_nombre.lower()), None)
 
     if not user_pok:
-        return redirect(url_for('list_pokemon', trainer=trainer))
-
+        return redirect(url_for("list_pokemon"))
 
     rivales = [p for p in DATOS if p["name"].lower() != user_pok["name"].lower()]
     rival_pok = random.choice(rivales) if rivales else user_pok
@@ -118,23 +148,20 @@ def batalla():
         ataques = random.sample(movimientos, 4)
     else:
         ataques = movimientos
-
+    
     return render_template(
         'batalla.html',
         proyecto=proyecto,
         nombre=nombre,
         anho=anho,
-        trainer=trainer,
         user_pok=user_pok,
         rival_pok=rival_pok,
         ataques=ataques
     )
 
 @app.route("/preparar_batalla", methods=["GET", "POST"])
+@login
 def preparar_batalla():
-    trainer = request.args.get("trainer")
-    if not trainer:
-        return redirect(url_for('inicio'))
 
     proyecto = "Batallas Pokemon"
     nombre = "Astrid Molina"
@@ -148,25 +175,21 @@ def preparar_batalla():
         if not pokemon_elegido:
             error = "Debes escribir el nombre de un Pokemon."
         else:
-            existe = False
-            for p in DATOS:
-                if p["name"].lower() == pokemon_elegido:
-                    existe = True
-                    break
-            
+            existe = any(p["name"].lower() == pokemon_elegido for p in DATOS)
             if existe:
-                return redirect(url_for('batalla', trainer=trainer, pokemon=pokemon_elegido))
-            else: 
-                error = f"El Pokemon ({pokemon_elegido}) no existe en el catalogo."
+                session["pokemon_batalla"] = pokemon_elegido
+                return redirect(url_for("batalla"))
+            else:
+                error = f"El Pokémon ({pokemon_elegido}) no existe en el catálogo."
 
 
-    return render_template('preparar_batalla.html', proyecto=proyecto, nombre=nombre, anho=anho, trainer=trainer, error=error)
+    return render_template('preparar_batalla.html', proyecto=proyecto, nombre=nombre, anho=anho, error=error)
 
 
 
 @app.route("/pokemons/<int:id>")
+@login
 def detalles_pok(id):
-    trainer = request.args.get("trainer")
     proyecto = "Batallas Pokemon"
     nombre = "Astrid Molina"
     anho = datetime.now().year
@@ -178,11 +201,16 @@ def detalles_pok(id):
                 pokemon=pokemon,
                 proyecto=proyecto, 
                 nombre=nombre, 
-                anho=anho,
-                trainer=trainer
+                anho=anho
             )
 
     return "Pokémon no encontrado"
+
+
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect(url_for("inicio"))
 
 
 if __name__ == "__main__":

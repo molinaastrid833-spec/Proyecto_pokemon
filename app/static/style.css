@@ -721,3 +721,38 @@ article h2 {
     color: #a4fc7e;
     transform: scale(1.03);
 }
+
+
+.barra-sesion {
+    background-color: #1a1a1a;
+    border-bottom: 2px solid #7960B4;
+    padding: 10px 25px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #b0b0b0;
+    font-size: 0.95rem;
+}
+
+.barra-sesion strong {
+    color: #a4fc7e;
+}
+
+.btn-logout {
+    background-color: rgba(255, 77, 77, 0.15);
+    color: #ff4d4d;
+    border: 1px solid #ff4d4d;
+    padding: 6px 14px;
+    border-radius: 15px;
+    font-size: 0.85rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.btn-logout:hover {
+    background-color: #ff4d4d;
+    color: #ffffff;
+    box-shadow: 0 0 8px rgba(255, 77, 77, 0.4);
+}
