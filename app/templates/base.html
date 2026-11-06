@@ -6,13 +6,15 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-
-    {% if session.trainer %}
-        <header class="barra-sesion">
-            <span>Entrenador activo: <strong>{{ session.trainer }}</strong></span>
-            <a href="{{ url_for('logout') }}" class="btn-logout">Cerrar Sesión</a>
-        </header>
-    {% endif %}
+    
+    <header>
+        <div class="barra-sesion">
+    {% if session.get('trainer') %}
+        <span>Entrenador: <strong>{{ session.trainer }}</strong></span>
+        <a href="{{ url_for('logout') }}" class="btn-logout">Cerrar Sesión</a>
+        </div>
+        {% endif %}
+    </header>
 
     <main>
         {% block content %}

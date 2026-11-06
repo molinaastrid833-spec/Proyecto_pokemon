@@ -2,6 +2,7 @@ from functools import wraps
 import json
 from pathlib import Path
 from flask import Flask, redirect, render_template, request, url_for, session
+from flask_session import Session
 from datetime import datetime
 import random
 
@@ -9,6 +10,13 @@ import random
 app = Flask(__name__, template_folder = 'templates')
 
 app.secret_key = "clave-secreta-pokemons-astrid"
+# Guardar las sesiones en carpetas locales dentro del servidor
+app.config["SESSION_TYPE"] = "filesystem"
+app.config["SESSION_PERMANENT"] = False
+app.config["SESSION_USE_SIGNER"] = True
+
+# 3. Inicializar la sesión en la aplicación
+Session(app)
 
 app.config.update(
     SESSION_COOKIE_HTTPONLY=True,  
@@ -52,7 +60,6 @@ def inicio():
         if len(trainer) < 3 or len(trainer) > 15:
             error = "El nombre de entrenador debe tener entre 3 y 15 caracteres."
         else:
-
             session["trainer"] = trainer
             return redirect(url_for("list_pokemon"))
         
@@ -66,23 +73,11 @@ def list_pokemon():
     proyecto = "Batallas Pokemon"
     nombre = "Astrid Molina"
     anho = datetime.now().year
+    trainer = session.get("trainer", "")
     
-    if request.args.get("limpiar") == "true":
-        session.pop("filtros", None)
-        return redirect(url_for("list_pokemon"))
-
-    if any(k in request.args for k in ["buscar_nombre", "buscar_tipo", "peso_min"]):
-        session["filtros"] = {
-            "nombre": request.args.get("buscar_nombre", "").strip().lower(),
-            "tipo": request.args.get("buscar_tipo", "").strip().lower(),
-            "peso_min": request.args.get("peso_min", "").strip()
-        }
-
-
-    filtros = session.get("filtros", {"nombre": "", "tipo": "", "peso_min": ""})
-    nombre_pok = filtros.get("nombre", "")
-    tipo = filtros.get("tipo", "")
-    peso_min = filtros.get("peso_min", "")
+    nombre_pok = request.args.get("buscar_nombre", "").strip().lower()
+    tipo = request.args.get("buscar_tipo", "").strip().lower()
+    peso_min = request.args.get("peso_min", "").strip()
     
     lista_tipos = []
     for p in DATOS:
@@ -112,6 +107,7 @@ def list_pokemon():
         proyecto=proyecto, 
         nombre=nombre, 
         anho=anho,
+        trainer = trainer,
         tipos=lista_tipos,
         selected_nombre=nombre_pok,
         selected_tipo=tipo,
@@ -121,34 +117,40 @@ def list_pokemon():
 @app.route("/batalla")
 @login
 def batalla():
-
-    # Permite atajo directo por parámetro en URL si viene de 'detalles_pok' o lo lee de la sesión
-    pokemon_nombre = request.args.get("pokemon") or session.get("pokemon_batalla")
-
-    if not pokemon_nombre:
-        return redirect(url_for("preparar_batalla"))
-
-    session["pokemon_batalla"] = pokemon_nombre
-    
     proyecto = "Batallas Pokemon"
     nombre = "Astrid Molina"
     anho = datetime.now().year
 
-    user_pok = next((p for p in DATOS if p["name"].lower() == pokemon_nombre.lower()), None)
+    pokemon_nombre = session.get("pokemon_batalla")
 
-    if not user_pok:
-        return redirect(url_for("list_pokemon"))
+    batalla_sesion = session.get("batalla")
 
-    rivales = [p for p in DATOS if p["name"].lower() != user_pok["name"].lower()]
-    rival_pok = random.choice(rivales) if rivales else user_pok
+    if (not batalla_sesion) or (batalla_sesion.get("user_pok", {}).get("name", "").lower() != pokemon_nombre.lower()):
 
+        user_pok = next((p for p in DATOS if p["name"].lower() == pokemon_nombre.lower()), None)
+        if not user_pok:
+            return redirect(url_for("list_pokemon"))
 
-    movimientos = user_pok.get("moves", user_pok.get("attacks", []))
-    if len(movimientos) >= 4:
-        ataques = random.sample(movimientos, 4)
+        rivales = [p for p in DATOS if p["name"].lower() != user_pok["name"].lower()]
+        rival_pok = random.choice(rivales) if rivales else user_pok
+
+        movimientos = user_pok.get("moves", user_pok.get("attacks", []))
+        if len(movimientos) >= 4:
+            ataques = random.sample(movimientos, 4)
+        else:
+            ataques = movimientos
+
+        
+        session["batalla"] = {
+            "user_pok": user_pok,
+            "rival_pok": rival_pok,
+            "ataques": ataques
+        }
     else:
-        ataques = movimientos
-    
+        user_pok = batalla_sesion["user_pok"]
+        rival_pok = batalla_sesion["rival_pok"]
+        ataques = batalla_sesion["ataques"]
+
     return render_template(
         'batalla.html',
         proyecto=proyecto,
@@ -166,6 +168,7 @@ def preparar_batalla():
     proyecto = "Batallas Pokemon"
     nombre = "Astrid Molina"
     anho = datetime.now().year
+    trainer = session.get("trainer", "")
        
     error = None
     
@@ -177,13 +180,15 @@ def preparar_batalla():
         else:
             existe = any(p["name"].lower() == pokemon_elegido for p in DATOS)
             if existe:
+                # Al seleccionar un Pokémon nuevo se invalida la batalla anterior
+                session.pop("batalla", None)
                 session["pokemon_batalla"] = pokemon_elegido
                 return redirect(url_for("batalla"))
             else:
                 error = f"El Pokémon ({pokemon_elegido}) no existe en el catálogo."
 
 
-    return render_template('preparar_batalla.html', proyecto=proyecto, nombre=nombre, anho=anho, error=error)
+    return render_template('preparar_batalla.html', proyecto=proyecto, nombre=nombre, anho=anho, trainer = trainer, error=error)
 
 
 
@@ -193,9 +198,10 @@ def detalles_pok(id):
     proyecto = "Batallas Pokemon"
     nombre = "Astrid Molina"
     anho = datetime.now().year
+    trainer = session.get("trainer", "")
+    
     for pokemon in DATOS:
         if int(pokemon["id"]) == id:
-
             return render_template(
                 'detalles_pok.html',
                 pokemon=pokemon,

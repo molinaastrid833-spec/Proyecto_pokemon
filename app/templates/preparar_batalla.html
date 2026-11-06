@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
 <h1>Preparacion antes del combate</h1>
-    <h2 class="subtitulo-entrenador">Entrenador activo: {{ trainer }}</h2>
+    <h2 class="subtitulo-entrenador">Entrenador activo: {{ session.trainer }}</h2>
 
     <div class="panel-bienvenida panel-columna">
         <form method="POST" action="{{ url_for('preparar_batalla', trainer=trainer) }}" class="formulario-batalla">

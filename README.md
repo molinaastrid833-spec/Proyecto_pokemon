@@ -108,3 +108,17 @@ Debido a la naturaleza stateless del protocolo HTTP, el servidor no recuerda las
 - **SESSION_COOKIE_SAMESITE = 'Lax':** Restringe el envío automático de la cookie desde enlaces de sitios web externos, reduciendo el riesgo de ataques CSRF (Cross-Site Request Forgery).
 
 - **Decorador de Autenticación (@login):** Intercepta las solicitudes a rutas protegidas (/pokemons, /pokemons/<id>, /preparar_batalla, /batalla) e impide el acceso directo escribiendo la URL en el navegador si no existe un entrenador registrado en session["trainer"].
+
+## Gestión de Sesiones
+
+Para esta fase se ha integrado la extensión **Flask-Session** configurada con almacenamiento en el sistema de archivos del servidor (`filesystem`).
+
+### Datos almacenados en `session`:
+* `session["trainer"]`: Guarda la identidad del entrenador tras validar la longitud del nombre (3 a 15 caracteres).
+* `session["pokemon_batalla"]`: Guarda el nombre del Pokémon seleccionado para el combate.
+* `session["batalla"]`: Guarda un diccionario con la estructura completa del combate actual (`user_pok`, `rival_pok` y `ataques`), garantizando que la batalla persista y no genere un rival o movimientos aleatorios al refrescar la página (F5).
+
+### Seguridad y Configuración:
+* Se utiliza un decorador `@login` para proteger todas las rutas privadas de la aplicación.
+* Las cookies de sesión están firmadas (`SESSION_USE_SIGNER = True`), marcadas como `HTTPOnly` y con política `SameSite=Lax`.
+* Se ha eliminado todo paso de parámetros de identidad o estado por Query Parameters (URL).
