@@ -1,26 +1,14 @@
 {% extends 'base.html' %}
 
 {% block content %}
-
-    {% if pokemon.weight < 100 %}
-        {% set categoria_peso = 'Ligero' %}
-    {% elif pokemon.weight <= 500 %}
-        {% set categoria_peso = 'Normal' %}
-    {% else %}
-        {% set categoria_peso = 'Pesado' %}
-    {% endif %}
-
     <div class="cabecera-pokemon">
         <h1>{{ pokemon.name }}</h1>
-
         <img src="{{ pokemon.sprites.front_default }}" alt="{{ pokemon.name }}">
         
         <div class="datos-basicos">
             <p>Altura: <span class="valor">{{ pokemon.height }}</span></p>
             <p>Peso: <span class="valor">{{ pokemon.weight }}</span></p>
-            
-            <p>Categoría de peso: <span class="valor">{{ categoria_peso }}</span></p>
-            
+            <p>Categoría de peso: <span class="valor">{{ pokemon.categoria_peso }}</span></p>
             <p class="tipos">Tipo:
                 {% for tipo in pokemon.types %}
                     <span>{{ tipo }}</span>
@@ -30,22 +18,18 @@
     </div>
 
     <h2>Estadísticas</h2>
-
     <div class="estadisticas">
         {% for stat in pokemon.stats %}
             <div class="estadistica">
                 <p>{{ stat.name }}: {{ stat.value }}</p>
-
                 <div class="barra">
-                    <div class="barra-rellena" style="width: {{ (stat.value / 150 * 100) | round(0) }}%;">
-                    </div>
+                    <div class="barra-rellena" style="width: {{ (stat.value / 150 * 100) | round(0) }}%;"></div>
                 </div>
             </div>
         {% endfor %}
     </div>
 
     <h2>Ataques</h2>
-
     <div class="ataques-grid">
         {% for move in pokemon.moves %}
             <div class="ataque">
@@ -57,7 +41,10 @@
         {% endfor %}
     </div>
     
-    <a href="{{ url_for('list_pokemon', trainer=trainer) }}" class="btn-volver">Volver al Catálogo</a>
-    <a href="{{ url_for('batalla', trainer=trainer, pokemon=pokemon.name) }}" class="btn-principal btn-preparar">Listo para el combate</a>
-
+    <a href="{{ url_for('pokemon.list_pokemon') }}" class="btn-volver">Volver al Catálogo</a>
+    
+    <form method="POST" action="{{ url_for('battle.preparar_batalla') }}" style="display: inline;">
+        <input type="hidden" name="pokemon_batalla" value="{{ pokemon.name }}">
+        <button type="submit" class="btn-principal btn-preparar">Listo para el combate</button>
+    </form>
 {% endblock %}

@@ -9,11 +9,11 @@
     
     <header>
         <div class="barra-sesion">
-    {% if session.get('trainer') %}
-        <span>Entrenador: <strong>{{ session.trainer }}</strong></span>
-        <a href="{{ url_for('logout') }}" class="btn-logout">Cerrar Sesión</a>
+            {% if session.get('trainer') %}
+                <span>Entrenador: <strong>{{ session.trainer }}</strong></span>
+                <a href="{{ url_for('auth.logout') }}" class="btn-logout">Cerrar Sesión</a>
+            {% endif %}
         </div>
-        {% endif %}
     </header>
 
     <main>

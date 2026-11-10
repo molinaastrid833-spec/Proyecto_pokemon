@@ -1,16 +1,13 @@
 {% extends 'base.html' %}
 
 {% block content %}
-
     <h1>Listado de Pokémon</h1>
     <h2 class="subtitulo-entrenador">Entrenador activo: {{ session.trainer }}</h2>
 
     <div class="panel-filtro">
-        <h3>Filtrar nuestros pokemones </h3>
+        <h3>Filtrar nuestros pokemones</h3>
         
-        <form method="GET" action="{{ url_for('list_pokemon') }}" class="form-filtro-grid">
-            <input type="hidden" name="trainer" value="{{ trainer }}">
-
+        <form method="GET" action="{{ url_for('pokemon.list_pokemon') }}" class="form-filtro-grid">
             <div class="campo-filtro">
                 <label for="buscar_nombre">Nombre: </label>
                 <input type="text" id="buscar_nombre" name="buscar_nombre" placeholder="Ej: pur..." value="{{ selected_nombre or '' }}">
@@ -34,38 +31,31 @@
             </div>
 
             <div class="acciones-filtro">
-                <button type="submit" class="btn-filtrar">Filtrar </button>
-                <a href="{{ url_for('list_pokemon', trainer=trainer) }}" class="btn-limpiar">Limpiar Filtros</a>
+                <button type="submit" class="btn-filtrar">Filtrar</button>
+                <a href="{{ url_for('pokemon.list_pokemon') }}" class="btn-limpiar">Limpiar Filtros</a>
             </div>
         </form>
 
         <p class="conteo-resultados">Resultados encontrados: <strong>{{ total_resultados }}</strong></p>
     </div>
 
-
     <div class="grid-pokemons">
     {% for pokemon in pokemons %}
-
         <article>
             <img src="{{ pokemon.sprites.front_default }}" alt="{{ pokemon.name }}">
-
             <h2>{{ pokemon.name }}</h2>
-
             <div class="tipos">
                 {% for tipo in pokemon.types %}
                     <span>{{ tipo }}</span>
                 {% endfor %}
             </div>
 
-            <a href="{{ url_for('detalles_pok', id=pokemon.id, trainer=trainer) }}">
+            <a href="{{ url_for('pokemon.detalles_pok', id=pokemon.id) }}">
                 <button class="btn-detalle">Inspeccionar</button>
             </a>
-
         </article>
-
     {% endfor %}
     </div>
-    <a href="{{ url_for('preparar_batalla', trainer=trainer) }}" class="btn-principal btn-preparar">Preparar Batalla</a>
 
-
+    <a href="{{ url_for('battle.preparar_batalla') }}" class="btn-principal btn-preparar">Preparar Batalla</a>
 {% endblock %}

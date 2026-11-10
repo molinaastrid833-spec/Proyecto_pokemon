@@ -49,7 +49,7 @@ pip install -r requirements.txt
 
 ### 5. Ejecutar la aplicación:
 ```bash
-python main.py
+python -m app.main
 ```
 O mediante el CLI de Flask:
 ```bash
@@ -122,3 +122,27 @@ Para esta fase se ha integrado la extensión **Flask-Session** configurada con a
 * Se utiliza un decorador `@login` para proteger todas las rutas privadas de la aplicación.
 * Las cookies de sesión están firmadas (`SESSION_USE_SIGNER = True`), marcadas como `HTTPOnly` y con política `SameSite=Lax`.
 * Se ha eliminado todo paso de parámetros de identidad o estado por Query Parameters (URL).
+
+## Organización de Rutas mediante Blueprints
+
+Para evitar la concentración de endpoints en un único script monolítico (`main.py`), la capa de presentación se ha desacoplado en tres **Blueprints** independientes ubicados en la carpeta `app/routes/`:
+
+1. **`auth_bp` (`app/routes/auth_routes.py`):**
+   * Separa el flujo de autenticación e identidad de la aplicación. Gestiona la bienvenida, el formulario inicial de entrenador, el cierre de sesión y el decorador de seguridad `@login_required`.
+
+2. **`pokemon_bp` (`app/routes/pokemon_routes.py`):**
+   * Agrupa todas las operaciones relativas a la consulta de información del catálogo (listado filtrado y vista detallada). Aislar estas rutas permite modificar la visualización o las búsquedas sin afectar la lógica de combate ni la sesión.
+
+3. **`battle_bp` (`app/routes/battle_routes.py`):**
+   * Encapsula el módulo de enfrentamientos (preparación y arena de combate VS). Mantiene limpia la sesión de combate (`session["batalla"]`) y la interacción con los servicios de generación de rivales.
+
+## Formularios y Seguridad con Flask-WTF 
+
+Se ha integrado la extensión **Flask-WTF** junto a **WTForms** para abstraer los formularios HTML en clases de Python orientadas a objetos dentro de la carpeta `app/forms/`:
+
+* `EntrenadorForm` (`app/forms/auth_forms.py`): Reemplaza la lectura manual de `request.form` en la portada, validando la longitud del nombre del entrenador (entre 3 y 15 caracteres) de forma declarativa.
+* `PrepararBatallaForm` (`app/forms/battle_forms.py`): Controla la entrada del nombre del Pokémon para el combate.
+
+### Mejoras de Seguridad e Integración:
+* **Protección CSRF:** Cada formulario renderizado con `{{ form.hidden_tag() }}` incluye un campo oculto con un token criptográfico único generado a partir de `app.secret_key`, previniendo ataques Cross-Site Request Forgery.
+* **Validación Server-Side limpia:** Se utiliza `form.validate_on_submit()` en las rutas para comprobar que la petición sea `POST` y que todos los validadores devuelvan `True` antes de procesar la lógica de negocio.

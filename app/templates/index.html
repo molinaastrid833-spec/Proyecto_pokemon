@@ -7,11 +7,13 @@
         Descubre a los Pokémon más incomprendidos y únicos en el campo de batalla.
     </p>
     
+    {% if pokemon %}
     <div class="destacado">
         <span>Ejemplar del día:</span>
         <img src="{{ pokemon.sprites.front_default }}" alt="{{ pokemon.name }}">
         <span>{{ pokemon.name }}</span>
     </div>
+    {% endif %}
 
     <div class="panel-bienvenida">
         
@@ -19,12 +21,17 @@
             <img src="https://media1.tenor.com/m/lxuO3YHimn0AAAAd/pokemon-purugly.gif" alt="Purugly">
         </div>
 
-        <form method="POST" action="{{ url_for('inicio') }}" class="formulario-entrenador">
-            <label for="trainer">Identificación de Entrenador:</label>
+        <form method="POST" action="{{ url_for('auth.inicio') }}" class="formulario-entrenador">
+            {{ form.hidden_tag() }}
             
-            <input type="text" id="trainer" name="trainer" value="{{ trainer }}" placeholder="Tu nombre..." required>
+            {{ form.trainer.label(for="trainer") }}
+            {{ form.trainer(id="trainer", placeholder="Tu nombre...") }}
             
-            {% if error %}
+            {% if form.trainer.errors %}
+                {% for err in form.trainer.errors %}
+                    <p class="msj-error">{{ err }}</p>
+                {% endfor %}
+            {% elif error %}
                 <p class="msj-error">{{ error }}</p>
             {% endif %}
             
