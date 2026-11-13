@@ -1,23 +1,29 @@
 {% extends 'base.html' %}
+
 {% block content %}
 <h1>Preparacion antes del combate</h1>
     <h2 class="subtitulo-entrenador">Entrenador activo: {{ session.trainer }}</h2>
 
     <div class="panel-bienvenida panel-columna">
-        <form method="POST" action="{{ url_for('preparar_batalla', trainer=trainer) }}" class="formulario-batalla">
+        <form method="POST" action="{{ url_for('battle.preparar_batalla') }}" class="formulario-batalla">
+            {{ form.hidden_tag() }}
+            
             <p class="instrucciones-form">Introduce el nombre del Pokemon con el que quieres pelear.</p>
 
-            <label for="pokemon_batalla">Nombre del Pokemon:</label>
+            {{ form.pokemon_batalla.label(for="pokemon_batalla") }}
+            {{ form.pokemon_batalla(id="pokemon_batalla", placeholder="Ej: purugly") }}
             
-            <input type="text" id="pokemon_batalla" name="pokemon_batalla" placeholder="Ej: purugly" value="{{ request.form.get('pokemon_batalla', '') }}" required>
-            
-            {% if error %}
+            {% if form.pokemon_batalla.errors %}
+                {% for err in form.pokemon_batalla.errors %}
+                    <p class="msj-error">{{ err }}</p>
+                {% endfor %}
+            {% elif error %}
                 <p class="msj-error">{{ error }}</p>
             {% endif %}
             
             <button type="submit" class="btn-principal">Confirmar Selección</button>
         </form>
 
-        <a href="{{ url_for('list_pokemon', trainer=trainer) }}" class="btn-volver btn-espaciado">Volver al Catálogo</a>
+        <a href="{{ url_for('pokemon.list_pokemon') }}" class="btn-volver btn-espaciado">Volver al Catálogo</a>
     </div>
 {% endblock %}

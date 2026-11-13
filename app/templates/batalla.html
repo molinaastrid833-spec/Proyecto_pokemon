@@ -8,7 +8,6 @@
         <div class="tarjeta-combatiente combatiente-jugador">
             <span class="etiqueta-bando">Tu pokemon</span>
             
-            
             <img src="{{ user_pok.sprites.front_default }}" alt="{{ user_pok.name }}" class="sprite-batalla">
             
             <h2>{{ user_pok.name }}</h2>
@@ -22,7 +21,6 @@
             <div class="datos-rapidos">
                 <p><strong>Peso:</strong> {{ user_pok.weight }} kg | <strong>Altura:</strong> {{ user_pok.height }} dm</p>
             </div>
-
 
             <div class="panel-ataques">
                 <h3>Ataques disponibles</h3>
@@ -68,5 +66,5 @@
         </div>
     </div>
 
-    <a href="{{ url_for('preparar_batalla', trainer=trainer) }}" class="btn-volver btn-espaciado">Elegir Otro Pokemon</a>
+    <a href="{{ url_for('battle.preparar_batalla') }}" class="btn-volver btn-espaciado">Elegir Otro Pokemon</a>
 {% endblock %}
