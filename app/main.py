@@ -1,7 +1,7 @@
 from functools import wraps
 import json
 from pathlib import Path
-from flask import Flask, redirect, render_template, request, url_for, session
+from flask import Flask, redirect, render_template, request, session, url_for
 from flask_session import Session
 from datetime import datetime
 import random
