@@ -1,6 +1,21 @@
+class Movimiento:
+    def __init__(self, name: str, type: str, power: int | None = None, accuracy: int | None = None):
+        self.name = name
+        self.type = type
+        self.power = power
+        self.accuracy = accuracy
+
+    def to_dict(self) -> dict:
+        return {
+            "name": self.name,
+            "type": self.type,
+            "power": self.power,
+            "accuracy": self.accuracy,
+        }
+
+
 class Pokemon:
-    
-    def __init__(self, id, name, height, weight, types, stats, moves, sprites):
+    def __init__(self, id, name, height, weight, types, stats, moves: list[Movimiento], sprites):
         self.id = int(id)
         self.name = name
         self.height = height
@@ -26,6 +41,6 @@ class Pokemon:
             "weight": self.weight,
             "types": self.types,
             "stats": self.stats,
-            "moves": self.moves,
+            "moves": [m.to_dict() for m in self.moves],
             "sprites": self.sprites,
         }
