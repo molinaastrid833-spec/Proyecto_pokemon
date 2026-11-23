@@ -11,3 +11,12 @@ class PrepararBatallaForm(FlaskForm):
         ]
     )
     submit = SubmitField("Confirmar Selección")
+
+
+class AtacarForm(FlaskForm):
+    move_name = StringField(
+        "Movimiento",
+        validators=[
+            DataRequired(message="Debes seleccionar un ataque válido.")
+        ]
+    )

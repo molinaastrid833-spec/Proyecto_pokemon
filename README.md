@@ -85,6 +85,7 @@ Disponible desde la barra superior de la interfaz mientras exista una sesión ac
 | `/pokemons/<id>` | `GET` | @login |**Detalles de cada poke:** Vista detallada de un Pokémon con sus imágenes, dimensiones físicas, estadísticas base y acceso directo a la arena de combate. |
 | `/preparar_batalla` | `GET`, `POST` | @login | **Selección Manual:** Formulario `POST` que valida la existencia del Pokémon introducido en el catálogo JSON antes de proceder. |
 | `/batalla` | `GET` | @login | **Arena de Combate (VS):** Genera la experiencia de combate en formato cara a cara. Selecciona un rival aleatorio distinto al jugador, calcula HP y nivel en tiempo real, y extrae 4 ataques aleatorios con `random.sample()`. |
+| `/nueva_batalla` | `POST` | @login | Reiniciar Combate (battle.nueva_batalla): Elimina session["battle"] conservando el Pokémon del entrenador y redirige a /battle para enfrentar a un nuevo rival aleatorio. |
 
 ## Mantenimiento de Estado con Sesiones
 Debido a la naturaleza stateless del protocolo HTTP, el servidor no recuerda las peticiones anteriores del cliente. Para resolver esto y evitar juntar información sensible en la URL (?trainer=...), la aplicación utiliza las sesiones nativas de Flask (flask.session).
@@ -146,3 +147,43 @@ Se ha integrado la extensión **Flask-WTF** junto a **WTForms** para abstraer lo
 ### Mejoras de Seguridad e Integración:
 * **Protección CSRF:** Cada formulario renderizado con `{{ form.hidden_tag() }}` incluye un campo oculto con un token criptográfico único generado a partir de `app.secret_key`, previniendo ataques Cross-Site Request Forgery.
 * **Validación Server-Side limpia:** Se utiliza `form.validate_on_submit()` en las rutas para comprobar que la petición sea `POST` y que todos los validadores devuelvan `True` antes de procesar la lógica de negocio.
+
+## Sistema de Batalla por Turnos y Lógica de Combate
+
+El combate se modela en la clase `Battle` (`app/models/battle.py`) con una estructura serializable en JSON (`participants` con `[0]` entrenador y `[1]` `"CPU"`, `turns` y `winner`) y los métodos `attack(move_name)`, `current_hp(participant)`, `is_over()` y `log()`.
+
+### Reglas Base del Combate
+- **Precisión (`hit`):** Acierta siempre si `accuracy` es `None`; en caso contrario, usa su valor como probabilidad porcentual.
+- **Daño base (`damage`):** Parte de un valor aleatorio entre el **15 % y el 30 %** de `max_hp` del defensor para evitar victorias de un solo golpe.
+- **Vida mínima (`remaining_hp`):** Nunca desciende por debajo de `0`.
+- **Orden de turnos (`number`):** Incrementa de forma consecutiva; ataca primero el usuario (`0`) y, solo si sigue en pie (`not is_over()`), responde la CPU (`1`).
+
+### Mecánicas y Justificación
+Basadas solo en los datos del JSON (`types`, `power`, `attack`, `defense`, `speed`) y almacenadas en las claves extra `stab` y `critical` sin alterar las obligatorias:
+
+1. **Bonificación por Mismo Tipo — STAB (`"stab": bool`):**
+   - **Efecto:** Multiplica el daño por **1.20 (+20 %)** si el tipo del movimiento coincide con alguno de los tipos del atacante.
+   - **Justificación:** Premia elegir movimientos afines al Pokémon y da valor estratégico a consultar su ficha de detalle antes de combatir.
+2. **Escalado por Potencia y Ataque/Defensa:**
+   - **Efecto:** Modula el daño mediante un factor de potencia (`0.90`–`1.10` según `move.power`) y la relación `attack`/`defense` acotada entre `0.85` y `1.20`.
+   - **Justificación:** Hace que las estadísticas de cada especie y la potencia de cada ataque influyan en el combate sin romper el equilibrio.
+3. **Golpe Crítico por Velocidad (`"critical": bool`):**
+   - **Efecto:** Probabilidad base del **10 %** más `speed / 1000` (tope del **30 %**); si salta, multiplica el daño por **1.5**.
+   - **Justificación:** Da utilidad táctica a `speed` (al atacar siempre primero el jugador) y añade tensión reflejada en el `log`.
+
+### Excepciones de Dominio
+Definidas en `app/exceptions/exceptions.py`: `BattleError` (base), `InvalidMoveError` (movimiento ajeno al Pokémon) y `BattleAlreadyOverError` (ataque con la batalla finalizada). La ruta `/battle` captura `BattleError`, conserva intacta `session["battle"]` e informa al usuario.
+
+---
+
+## Gestión de Sesiones y Seguridad
+
+Se emplea **Flask-Session** (`filesystem`) con cookies firmadas (`SESSION_USE_SIGNER = True`), `SESSION_COOKIE_HTTPONLY = True` y `SESSION_COOKIE_SAMESITE = "Lax"`.
+
+| Clave en `session` | Uso y Justificación |
+| :--- | :--- |
+| `trainer` | Identifica al entrenador activo y habilita el acceso mediante `@login_required`. |
+| `pokemon_batalla` | Mantiene el Pokémon seleccionado entre vistas y nuevas partidas. |
+| `battle` | Serializa el estado del combate; junto al patrón **Post/Redirect/Get (PRG)** en `/battle`, evita repetir ataques al recargar (`F5`). |
+
+**Protección CSRF (Flask-WTF):** Todos los formularios (`EntrenadorForm`, `PrepararBatallaForm` y `AtacarForm`) incluyen token CSRF (`{{ form.hidden_tag() }}`) y validación `validate_on_submit()`.

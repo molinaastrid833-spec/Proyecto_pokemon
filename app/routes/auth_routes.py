@@ -1,9 +1,8 @@
 from functools import wraps
 from datetime import datetime
-import random
 from flask import Blueprint, render_template, redirect, url_for, session
 from app.forms.auth_forms import EntrenadorForm
-from app.repositories.pokemon_repo import obtener_todos_pokemons
+from app.services import pokemon_service
 
 auth_bp = Blueprint("auth", __name__)
 
@@ -26,10 +25,7 @@ def inicio():
     proyecto = "Batallas Pokemon"
     nombre = "Astrid Molina"
     anho = datetime.now().year
-    
-    # Obtener un Pokémon aleatorio para la portada desde la capa de datos
-    todos = obtener_todos_pokemons()
-    pokemon_destacado = random.choice(todos) if todos else None
+    pokemon_destacado = pokemon_service.obtener_pokemon_destacado()
 
     if form.validate_on_submit():
         session["trainer"] = form.trainer.data.strip()

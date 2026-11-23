@@ -4,7 +4,17 @@
     <h1>Estadio de Batalla</h1>
     <h2 class="subtitulo-entrenador">Entrenador en combate: {{ session.trainer }}</h2>
 
+    {% if error %}
+        <p class="msj-error">{{ error }}</p>
+    {% endif %}
+    {% if form.move_name.errors %}
+        {% for err in form.move_name.errors %}
+            <p class="msj-error">{{ err }}</p>
+        {% endfor %}
+    {% endif %}
+
     <div class="escenario-batalla">
+        <!-- TU POKEMON (Participante 0) -->
         <div class="tarjeta-combatiente combatiente-jugador">
             <span class="etiqueta-bando">Tu pokemon</span>
             
@@ -19,36 +29,39 @@
             </div>
 
             <div class="datos-rapidos">
+                <p><strong>PS:</strong> {{ user_hp }} / {{ user_pok.max_hp }}</p>
+                <div class="barra">
+                    <div class="barra-rellena" style="width: {{ (user_hp / user_pok.max_hp * 100) | round(0) }}%;"></div>
+                </div>
                 <p><strong>Peso:</strong> {{ user_pok.weight }} kg | <strong>Altura:</strong> {{ user_pok.height }} dm</p>
             </div>
 
+            {% if not is_over %}
             <div class="panel-ataques">
-                <h3>Ataques disponibles</h3>
+                <h3>Elige tu ataque</h3>
                 <div class="grid-ataques-batalla">
-                    {% for ataque in ataques %}
-                        <div class="card-ataque">
-                            <span>
-                                {% if ataque.move is defined %}
-                                    {{ ataque.move.name }}
-                                {% elif ataque.name is defined %}
-                                    {{ ataque.name }}
-                                {% else %}
-                                    {{ ataque }}
-                                {% endif %}
-                            </span>
-                        </div>
+                    {% for move in user_pok.moves %}
+                        <form method="POST" action="{{ url_for('battle.battle') }}">
+                            {{ form.hidden_tag() }}
+                            <input type="hidden" name="move_name" value="{{ move.name }}">
+                            <button type="submit" class="card-ataque">
+                                <strong>{{ move.name }}</strong><br>
+                                <small>{{ move.type }} | Pot: {{ move.power or '-' }} | Prec: {{ move.accuracy or '100' }}%</small>
+                            </button>
+                        </form>
                     {% else %}
                         <p>Sin movimientos disponibles</p>
                     {% endfor %}
                 </div>
             </div>
+            {% endif %}
         </div>
 
         <div class="emblema-vs">VS</div>
 
-        <!-- POKEMON RIVAL -->
+        <!-- POKEMON RIVAL (Participante 1) -->
         <div class="tarjeta-combatiente combatiente-rival">
-            <span class="etiqueta-bando bando-rival">Pokemon Rival</span>
+            <span class="etiqueta-bando bando-rival">Pokemon Rival ({{ battle.participants[1].trainer }})</span>
             
             <img src="{{ rival_pok.sprites.front_default }}" alt="{{ rival_pok.name }}" class="sprite-batalla">
             
@@ -61,9 +74,44 @@
             </div>
 
             <div class="datos-rapidos">
+                <p><strong>PS:</strong> {{ rival_hp }} / {{ rival_pok.max_hp }}</p>
+                <div class="barra">
+                    <div class="barra-rellena" style="width: {{ (rival_hp / rival_pok.max_hp * 100) | round(0) }}%;"></div>
+                </div>
                 <p><strong>Peso:</strong> {{ rival_pok.weight }} kg | <strong>Altura:</strong> {{ rival_pok.height }} dm</p>
             </div>
         </div>
+    </div>
+
+    {% if is_over %}
+        <div class="panel-bienvenida panel-columna">
+            <h2>¡Batalla finalizada!</h2>
+            {% if winner == 0 %}
+                <p><strong>¡Victoria!</strong> {{ winner_trainer }} y <strong>{{ winner_pokemon }}</strong> han ganado el combate.</p>
+            {% else %}
+                <p><strong>Has sido derrotado.</strong> El ganador es {{ winner_trainer }} con <strong>{{ winner_pokemon }}</strong>.</p>
+            {% endif %}
+
+            <form method="POST" action="{{ url_for('battle.nueva_batalla') }}">
+                {{ form.hidden_tag() }}
+                <button type="submit" class="btn-principal">Nueva batalla (otro rival)</button>
+            </form>
+            <a href="{{ url_for('pokemon.list_pokemon') }}" class="btn-volver btn-espaciado">Volver al Catálogo</a>
+        </div>
+    {% endif %}
+
+    <!-- REGISTRO DEL COMBATE -->
+    <div class="panel-bienvenida panel-columna">
+        <h3>Registro del combate</h3>
+        {% if logs %}
+            <ul>
+                {% for entry in logs %}
+                    <li>{{ entry }}</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>El combate ha comenzado. Selecciona un ataque para iniciar el primer turno.</p>
+        {% endif %}
     </div>
 
     <a href="{{ url_for('battle.preparar_batalla') }}" class="btn-volver btn-espaciado">Elegir Otro Pokemon</a>

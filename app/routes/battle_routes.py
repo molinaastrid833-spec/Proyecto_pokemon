@@ -1,9 +1,9 @@
 from datetime import datetime
 from flask import Blueprint, render_template, redirect, url_for, session
 from app.routes.auth_routes import login_required
-from app.forms.battle_forms import PrepararBatallaForm
+from app.forms.battle_forms import PrepararBatallaForm, AtacarForm
 from app.services import battle_service
-from app.repositories.pokemon_repo import buscar_por_nombre
+from app.exceptions.exceptions import BattleError
 
 battle_bp = Blueprint("battle", __name__)
 
@@ -14,18 +14,17 @@ def preparar_batalla():
     proyecto = "Batallas Pokemon"
     nombre = "Astrid Molina"
     anho = datetime.now().year
-    
+
     form = PrepararBatallaForm()
     error = None
 
     if form.validate_on_submit():
         pokemon_elegido = form.pokemon_batalla.data.strip().lower()
-        existe = buscar_por_nombre(pokemon_elegido)
-        
-        if existe:
-            session.pop("batalla", None)
+
+        if battle_service.existe_pokemon_para_batalla(pokemon_elegido):
+            session.pop("battle", None)
             session["pokemon_batalla"] = pokemon_elegido
-            return redirect(url_for("battle.batalla"))
+            return redirect(url_for("battle.battle"))
         else:
             error = f"El Pokémon ({pokemon_elegido}) no existe en el catálogo."
 
@@ -39,9 +38,9 @@ def preparar_batalla():
     )
 
 
-@battle_bp.route("/batalla")
+@battle_bp.route("/battle", methods=["GET", "POST"])
 @login_required
-def batalla():
+def battle():
     proyecto = "Batallas Pokemon"
     nombre = "Astrid Molina"
     anho = datetime.now().year
@@ -50,28 +49,47 @@ def batalla():
     if not pokemon_nombre:
         return redirect(url_for("battle.preparar_batalla"))
 
-    batalla_sesion = session.get("batalla")
+    batalla_sesion = session.get("battle")
 
-    if (not batalla_sesion) or (batalla_sesion.get("user_pok", {}).get("name", "").lower() != pokemon_nombre.lower()):
-        datos_combate = battle_service.preparar_combate(pokemon_nombre)
-        if not datos_combate:
+    # Si no hay batalla en curso o se cambió de Pokémon, iniciamos una nueva
+    if (
+        not batalla_sesion
+        or batalla_sesion["participants"][0]["pokemon"]["name"].lower() != pokemon_nombre.lower()
+    ):
+        batalla_sesion = battle_service.iniciar_batalla(session["trainer"], pokemon_nombre)
+        if not batalla_sesion:
             return redirect(url_for("pokemon.list_pokemon"))
+        session["battle"] = batalla_sesion
 
-        session["batalla"] = datos_combate
-        user_pok = datos_combate["user_pok"]
-        rival_pok = datos_combate["rival_pok"]
-        ataques = datos_combate["ataques"]
-    else:
-        user_pok = batalla_sesion["user_pok"]
-        rival_pok = batalla_sesion["rival_pok"]
-        ataques = batalla_sesion["ataques"]
+    form = AtacarForm()
+    error = None
+
+    if form.validate_on_submit():
+        try:
+            batalla_actualizada = battle_service.ejecutar_turno(
+                batalla_sesion,
+                form.move_name.data
+            )
+            session["battle"] = batalla_actualizada
+            return redirect(url_for("battle.battle"))
+        except BattleError as e:
+            error = str(e)
+
+    resumen = battle_service.obtener_resumen_batalla(session["battle"])
 
     return render_template(
         "batalla.html",
         proyecto=proyecto,
         nombre=nombre,
         anho=anho,
-        user_pok=user_pok,
-        rival_pok=rival_pok,
-        ataques=ataques
+        form=form,
+        error=error,
+        **resumen
     )
+
+
+@battle_bp.route("/nueva_batalla", methods=["POST"])
+@login_required
+def nueva_batalla():
+    session.pop("battle", None)
+    return redirect(url_for("battle.battle"))

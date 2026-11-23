@@ -1,5 +1,6 @@
+import random
 from app.models.pokemon import Pokemon
-from app.repositories.pokemon_repo import obtener_todos_pokemons, buscar_por_id, buscar_por_nombre
+from app.repositories.pokemon_repo import obtener_todos_pokemons, buscar_por_id
 
 
 def obtener_lista_tipos() -> list[str]:
@@ -35,3 +36,8 @@ def filtrar_pokemons(nombre_pok: str = "", tipo: str = "", peso_min: str = "") -
 
 def obtener_detalle(pokemon_id: int) -> Pokemon | None:
     return buscar_por_id(pokemon_id)
+
+
+def obtener_pokemon_destacado() -> Pokemon | None:
+    todos = obtener_todos_pokemons()
+    return random.choice(todos) if todos else None
